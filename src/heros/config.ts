@@ -35,8 +35,38 @@ export const hero: Field = {
           label: 'Low Impact',
           value: 'lowImpact',
         },
+        {
+          label: 'Grid Gallery',
+          value: 'gridGallery',
+        },
+        {
+          label: 'Two Columns',
+          value: 'twoColumns',
+        },
       ],
       required: true,
+    },
+    {
+      name: 'leftPosts',
+      type: 'relationship',
+      relationTo: 'posts',
+      hasMany: true,
+      admin: {
+        condition: (_, { type } = {}) => type === 'twoColumns',
+        sortOptions: 'title',
+      },
+      maxRows: 100,
+    },
+    {
+      name: 'rightPosts',
+      type: 'relationship',
+      relationTo: 'posts',
+      hasMany: true,
+      admin: {
+        condition: (_, { type } = {}) => type === 'twoColumns',
+        sortOptions: 'title',
+      },
+      maxRows: 100,
     },
     {
       name: 'richText',
@@ -65,6 +95,22 @@ export const hero: Field = {
         condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
       },
       relationTo: 'media',
+      required: true,
+    },
+    {
+      name: 'galleryImages',
+      type: 'array',
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+        },
+      ],
+      admin: {
+        condition: (_, { type } = {}) => type === 'gridGallery',
+      },
       required: true,
     },
   ],
