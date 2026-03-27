@@ -1,12 +1,16 @@
 import type { StaticImageData } from 'next/image'
+import type { Media as MediaType } from '@/payload-types'
 
 import { cn } from '@/utilities/ui'
 import React from 'react'
 import RichText from '@/components/RichText'
 
-import type { MediaBlock as MediaBlockProps } from '@/payload-types'
-
 import { Media } from '../../components/Media'
+
+type MediaBlockProps = {
+  media?: string | MediaType
+  position?: 'default' | 'fullscreen'
+}
 
 type Props = MediaBlockProps & {
   breakout?: boolean

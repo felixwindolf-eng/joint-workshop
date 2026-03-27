@@ -1,23 +1,26 @@
 import React, { Fragment } from 'react'
 
-import type { Page } from '@/payload-types'
-
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 
-const blockComponents = {
-  archive: ArchiveBlock,
-  content: ContentBlock,
-  cta: CallToActionBlock,
-  formBlock: FormBlock,
-  mediaBlock: MediaBlock,
+const blockComponents: Record<string, React.FC<Record<string, unknown>>> = {
+  archive: ArchiveBlock as React.FC<Record<string, unknown>>,
+  content: ContentBlock as React.FC<Record<string, unknown>>,
+  cta: CallToActionBlock as React.FC<Record<string, unknown>>,
+  formBlock: FormBlock as React.FC<Record<string, unknown>>,
+  mediaBlock: MediaBlock as React.FC<Record<string, unknown>>,
+}
+
+type Block = {
+  blockType: string
+  [key: string]: unknown
 }
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
+  blocks: Block[]
 }> = (props) => {
   const { blocks } = props
 
@@ -35,7 +38,6 @@ export const RenderBlocks: React.FC<{
             if (Block) {
               return (
                 <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
                   <Block {...block} disableInnerContainer />
                 </div>
               )

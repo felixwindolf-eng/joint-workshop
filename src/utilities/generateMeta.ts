@@ -19,21 +19,32 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
+type DocWithMeta = {
+  meta?: {
+    title?: string | null
+    description?: string | null
+    image?: Media | string | null
+  }
+  slug?: string | string[]
+  title?: string
+}
+
 export const generateMeta = async (args: {
-  doc: Partial<Page> | Partial<Post> | null
+  doc: Partial<Page> | Partial<Post> | DocWithMeta | null
 }): Promise<Metadata> => {
   const { doc } = args
+  const docWithMeta = doc as DocWithMeta | null
 
-  const ogImage = getImageURL(doc?.meta?.image)
+  const ogImage = getImageURL(docWithMeta?.meta?.image as Media | undefined)
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
+  const title = docWithMeta?.meta?.title
+    ? docWithMeta?.meta?.title + ' | Payload Website Template'
     : 'Payload Website Template'
 
   return {
-    description: doc?.meta?.description,
+    description: docWithMeta?.meta?.description,
     openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
+      description: docWithMeta?.meta?.description || '',
       images: ogImage
         ? [
             {
@@ -42,7 +53,7 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: Array.isArray(docWithMeta?.slug) ? docWithMeta?.slug.join('/') : '/',
     }),
     title,
   }

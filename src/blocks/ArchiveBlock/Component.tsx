@@ -1,4 +1,5 @@
-import type { Post, ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+import type { Post, Category } from '@/payload-types'
+import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -7,11 +8,17 @@ import RichText from '@/components/RichText'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
 
-export const ArchiveBlock: React.FC<
-  ArchiveBlockProps & {
-    id?: string
-  }
-> = async (props) => {
+type ArchiveBlockProps = {
+  id?: string
+  populateBy?: 'collection' | 'selection'
+  relationTo?: 'posts'
+  categories?: (string | Category)[]
+  limit?: number
+  selectedDocs?: { relationTo: 'posts'; value: string | Post }[]
+  introContent?: DefaultTypedEditorState
+}
+
+export const ArchiveBlock: React.FC<ArchiveBlockProps> = async (props) => {
   const { id, categories, introContent, limit: limitFromProps, populateBy, selectedDocs } = props
 
   const limit = limitFromProps || 3

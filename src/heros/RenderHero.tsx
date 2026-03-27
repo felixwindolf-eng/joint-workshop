@@ -8,7 +8,8 @@ import { MediumImpactHero } from '@/heros/MediumImpact'
 import { GridGalleryHero } from '@/heros/GridGallery'
 import { TwoColumnsHero } from '@/heros/TwoColumns'
 
-const heroes = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const heroes: Record<string, React.FC<any>> = {
   highImpact: HighImpactHero,
   lowImpact: LowImpactHero,
   mediumImpact: MediumImpactHero,
