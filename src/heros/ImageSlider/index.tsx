@@ -21,14 +21,10 @@ export const ImageSliderHero: React.FC<ImageSliderHeroProps> = ({ sliderImages =
 
   const validImages = sliderImages.filter((item) => item.image?.url)
 
-  if (!validImages.length) {
-    return null
-  }
-
   // Auto-scroll for desktop (show 3 images)
   useEffect(() => {
     const container = scrollContainerRef.current
-    if (!container) return
+    if (!container || !validImages.length) return
 
     let scrollAmount = 0
     const scrollInterval = setInterval(() => {
@@ -37,7 +33,11 @@ export const ImageSliderHero: React.FC<ImageSliderHeroProps> = ({ sliderImages =
     }, 20)
 
     return () => clearInterval(scrollInterval)
-  }, [])
+  }, [validImages.length])
+
+  if (!validImages.length) {
+    return null
+  }
 
   return (
     <div
