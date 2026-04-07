@@ -1,4 +1,4 @@
-import type { CollectionConfig, BeforeChangeHook } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
@@ -9,7 +9,7 @@ import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
 // Clean up hero data to remove undefined values
-const cleanupHeroData: BeforeChangeHook<'pages'> = async ({ data }) => {
+const cleanupHeroData = async ({ data }: any) => {
   if (data.hero && typeof data.hero === 'object') {
     const hero = data.hero as Record<string, any>
     
