@@ -35,7 +35,7 @@ export const Models3DHero: React.FC<Models3DHeroProps> = async ({ model3dId }) =
     const model = await payload.findByID({
       collection: '3d-models',
       id,
-      depth: 0,
+      depth: 2,
     })
 
     if (!model || !model.file) {
