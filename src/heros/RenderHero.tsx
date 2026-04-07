@@ -7,6 +7,7 @@ import { LowImpactHero } from '@/heros/LowImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
 import { GridGalleryHero } from '@/heros/GridGallery'
 import { TwoColumnsHero } from '@/heros/TwoColumns'
+import { Models3DHero } from '@/heros/Models3D'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const heroes: Record<string, React.FC<any>> = {
@@ -15,6 +16,7 @@ const heroes: Record<string, React.FC<any>> = {
   mediumImpact: MediumImpactHero,
   gridGallery: GridGalleryHero,
   twoColumns: TwoColumnsHero,
+  models3d: Models3DHero,
 }
 
 export const RenderHero: React.FC<Page['hero']> = (props) => {

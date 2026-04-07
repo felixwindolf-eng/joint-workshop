@@ -43,6 +43,10 @@ export const hero: Field = {
           label: 'Two Columns',
           value: 'twoColumns',
         },
+        {
+          label: '3D Model Viewer',
+          value: 'models3d',
+        },
       ],
       required: true,
     },
@@ -112,6 +116,14 @@ export const hero: Field = {
         condition: (_, { type } = {}) => type === 'gridGallery',
       },
       required: true,
+    },
+    {
+      name: 'model3dId',
+      type: 'relationship',
+      relationTo: '3d-models',
+      admin: {
+        condition: (_, { type } = {}) => type === 'models3d',
+      },
     },
   ],
   label: false,

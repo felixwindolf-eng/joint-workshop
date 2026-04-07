@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     media: Media;
+    '3d-models': DModel;
     categories: Category;
     users: User;
     redirects: Redirect;
@@ -92,6 +93,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    '3d-models': DModelsSelect<false> | DModelsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -160,7 +162,7 @@ export interface Page {
   id: string;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'gridGallery' | 'twoColumns';
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'gridGallery' | 'twoColumns' | 'models3d';
     leftPosts?: (string | Post)[] | null;
     rightPosts?: (string | Post)[] | null;
     richText?: {
@@ -209,6 +211,7 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    model3dId?: (string | null) | DModel;
   };
   publishedAt?: string | null;
   /**
@@ -227,6 +230,7 @@ export interface Page {
 export interface Post {
   id: string;
   title: string;
+  order?: number | null;
   heroImage?: (string | null) | Media;
   content: {
     root: {
@@ -437,6 +441,23 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "3d-models".
+ */
+export interface DModel {
+  id: string;
+  name: string;
+  /**
+   * Upload STL or STEP file
+   */
+  file: string | Media;
+  format: 'stl' | 'step' | 'iges';
+  description?: string | null;
+  displayOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -815,6 +836,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: '3d-models';
+        value: string | DModel;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: string | Category;
       } | null)
@@ -919,6 +944,7 @@ export interface PagesSelect<T extends boolean = true> {
               image?: T;
               id?: T;
             };
+        model3dId?: T;
       };
   publishedAt?: T;
   generateSlug?: T;
@@ -933,6 +959,7 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  order?: T;
   heroImage?: T;
   content?: T;
   relatedPosts?: T;
@@ -1051,6 +1078,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "3d-models_select".
+ */
+export interface DModelsSelect<T extends boolean = true> {
+  name?: T;
+  file?: T;
+  format?: T;
+  description?: T;
+  displayOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
