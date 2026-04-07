@@ -76,7 +76,7 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
 
             // Auto-rotation state
             let autoRotateX = 0.0015
-            let autoRotateY = 0.003
+            let autoRotateY = 0
 
             // Mouse move handler
             const handleMouseDown = (e: MouseEvent) => {
