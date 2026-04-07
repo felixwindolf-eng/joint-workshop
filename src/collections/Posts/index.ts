@@ -49,7 +49,6 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   admin: {
     defaultColumns: ['title', 'order', 'slug', 'updatedAt'],
-    defaultSort: 'order',
     pagination: {
       defaultLimit: 100,
       limits: [25, 50, 100],
