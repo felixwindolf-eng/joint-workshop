@@ -1,41 +1,44 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 interface Model3DViewerProps {
-  fileUrl: string
-  format: 'stl' | 'step' | 'iges'
+  fileUrl?: string
+  fileName?: string
 }
 
-export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, format }) => {
+export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName }) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const sceneRef = useRef<any>(null)
 
   useEffect(() => {
-    if (!containerRef.current || format !== 'stl') return
+    if (!fileUrl || !containerRef.current) return
 
-    // Dynamic import to avoid Three.js type issues
-    const initViewer = async () => {
+    const initScene = async () => {
       try {
-        // @ts-ignore - Three.js types don't cover examples
+        // Dynamic imports to avoid build-time Three.js issues
         const THREE = await import('three')
-        // @ts-ignore - STLLoader not in types
-        const { STLLoader } = await import('three/examples/jsm/loaders/STLLoader')
+        const { STLLoader } = await import('three/examples/jsm/loaders/STLLoader.js')
 
         const scene = new THREE.Scene()
         scene.background = new THREE.Color(0xffffff)
-
-        const width = containerRef.current!.clientWidth
-        const height = containerRef.current!.clientHeight
-        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-        camera.position.z = 100
-
+        
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          containerRef.current!.clientWidth / containerRef.current!.clientHeight,
+          0.1,
+          1000
+        )
         const renderer = new THREE.WebGLRenderer({ antialias: true })
-        renderer.setSize(width, height)
+
+        renderer.setSize(
+          containerRef.current!.clientWidth,
+          containerRef.current!.clientHeight
+        )
         renderer.setPixelRatio(window.devicePixelRatio)
         containerRef.current!.appendChild(renderer.domElement)
 
+        // Lighting
         const light = new THREE.DirectionalLight(0xffffff, 1)
         light.position.set(10, 10, 10)
         scene.add(light)
@@ -43,83 +46,88 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, format })
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
         scene.add(ambientLight)
 
+        // Load STL
         const loader = new STLLoader()
-        loader.load(fileUrl, (geometry: any) => {
-          geometry.computeVertexNormals()
-          geometry.center()
+        loader.load(
+          fileUrl,
+          (geometry: any) => {
+            const material = new THREE.MeshPhongMaterial({ 
+              color: 0x156289,
+              emissive: 0x072534,
+              shininess: 200,
+            })
+            const mesh = new THREE.Mesh(geometry, material)
 
-          const material = new THREE.MeshPhongMaterial({
-            color: 0x156289,
-            emissive: 0x072534,
-            shininess: 200,
-          })
-          const mesh = new THREE.Mesh(geometry, material)
-          scene.add(mesh)
+            // Center and scale
+            geometry.center()
+            geometry.computeBoundingBox()
+            const size = geometry.boundingBox.getSize(new THREE.Vector3())
+            const maxDim = Math.max(size.x, size.y, size.z)
+            const scale = 100 / maxDim
+            mesh.scale.multiplyScalar(scale)
 
-          const bbox = new THREE.Box3().setFromObject(mesh)
-          const size = bbox.getSize(new THREE.Vector3())
-          const maxDim = Math.max(size.x, size.y, size.z)
-          const fov = camera.fov * (Math.PI / 180)
-          let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2))
-          cameraZ *= 1.5
-          camera.position.z = cameraZ
-          camera.lookAt(mesh.position)
+            scene.add(mesh)
+            sceneRef.current = { scene, camera, renderer, mesh }
 
-          setIsLoading(false)
-        })
+            // Camera position
+            camera.position.z = 150
+            camera.lookAt(0, 0, 0)
 
-        const animate = () => {
-          requestAnimationFrame(animate)
-
-          scene.children.forEach((child: any) => {
-            if (child.isMesh) {
-              child.rotation.x += 0.001
-              child.rotation.y += 0.002
+            // Render loop with rotation
+            const animate = () => {
+              requestAnimationFrame(animate)
+              mesh.rotation.x += 0.005
+              mesh.rotation.y += 0.01
+              renderer.render(scene, camera)
             }
-          })
+            animate()
 
-          renderer.render(scene, camera)
-        }
-        animate()
+            // Handle window resize
+            const handleResize = () => {
+              if (!containerRef.current) return
+              const w = containerRef.current.clientWidth
+              const h = containerRef.current.clientHeight
+              camera.aspect = w / h
+              camera.updateProjectionMatrix()
+              renderer.setSize(w, h)
+            }
 
-        const handleResize = () => {
-          if (!containerRef.current) return
-          const w = containerRef.current.clientWidth
-          const h = containerRef.current.clientHeight
-          camera.aspect = w / h
-          camera.updateProjectionMatrix()
-          renderer.setSize(w, h)
-        }
+            window.addEventListener('resize', handleResize)
 
-        window.addEventListener('resize', handleResize)
-
-        return () => {
-          window.removeEventListener('resize', handleResize)
-          renderer.dispose()
-          containerRef.current?.removeChild(renderer.domElement)
-        }
+            return () => {
+              window.removeEventListener('resize', handleResize)
+            }
+          },
+          undefined,
+          (error: any) => {
+            console.error('Error loading STL:', error)
+          }
+        )
       } catch (error) {
-        console.error('Error loading 3D viewer:', error)
-        setHasError(true)
+        console.error('Error initializing 3D scene:', error)
       }
     }
 
-    initViewer()
-  }, [fileUrl, format])
+    initScene()
 
-  if (hasError) {
+    return () => {
+      if (sceneRef.current?.renderer && containerRef.current?.contains(sceneRef.current.renderer.domElement)) {
+        containerRef.current?.removeChild(sceneRef.current.renderer.domElement)
+      }
+    }
+  }, [fileUrl])
+
+  if (!fileUrl) {
     return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#f0f0f0',
-        }}
-      >
-        <p>Error loading 3D model</p>
+      <div style={{ 
+        width: '100%', 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        backgroundColor: '#ffffff'
+      }}>
+        <p>No 3D model file URL provided</p>
       </div>
     )
   }
@@ -129,29 +137,9 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, format })
       ref={containerRef}
       style={{
         width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
+        height: '100vh',
+        backgroundColor: '#ffffff',
       }}
-    >
-      {isLoading && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '20px',
-            borderRadius: '8px',
-            zIndex: 10,
-          }}
-        >
-          Loading 3D model...
-        </div>
-      )}
-    </div>
+    />
   )
 }
