@@ -53,8 +53,8 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
           fileUrl,
           (geometry: any) => {
             const material = new THREE.MeshPhongMaterial({ 
-              color: 0x156289,
-              emissive: 0x072534,
+              color: 0x808080,
+              emissive: 0x404040,
               shininess: 200,
             })
             const mesh = new THREE.Mesh(geometry, material)
@@ -66,6 +66,9 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
             const maxDim = Math.max(size.x, size.y, size.z)
             const scale = 100 / maxDim
             mesh.scale.multiplyScalar(scale)
+
+            // Rotate -90 degrees on X axis
+            mesh.rotation.x = -Math.PI / 2
 
             scene.add(mesh)
             sceneRef.current = { scene, camera, renderer, mesh }
