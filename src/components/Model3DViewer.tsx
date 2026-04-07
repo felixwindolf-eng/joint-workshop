@@ -10,6 +10,7 @@ interface Model3DViewerProps {
 export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<any>(null)
+  const mouseRef = useRef({ x: 0, y: 0, isDragging: false })
 
   useEffect(() => {
     if (!fileUrl || !containerRef.current) return
@@ -73,11 +74,49 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
             camera.position.z = 150
             camera.lookAt(0, 0, 0)
 
-            // Render loop with rotation
+            // Auto-rotation state
+            let autoRotateX = 0.0015
+            let autoRotateY = 0.003
+
+            // Mouse move handler
+            const handleMouseDown = (e: MouseEvent) => {
+              mouseRef.current.isDragging = true
+              mouseRef.current.x = e.clientX
+              mouseRef.current.y = e.clientY
+            }
+
+            const handleMouseUp = () => {
+              mouseRef.current.isDragging = false
+            }
+
+            const handleMouseMove = (e: MouseEvent) => {
+              if (!mouseRef.current.isDragging || !sceneRef.current) return
+
+              const deltaX = e.clientX - mouseRef.current.x
+              const deltaY = e.clientY - mouseRef.current.y
+
+              mesh.rotation.y += deltaX * 0.01
+              mesh.rotation.x += deltaY * 0.01
+
+              mouseRef.current.x = e.clientX
+              mouseRef.current.y = e.clientY
+            }
+
+            // Add event listeners
+            renderer.domElement.addEventListener('mousedown', handleMouseDown)
+            renderer.domElement.addEventListener('mouseup', handleMouseUp)
+            renderer.domElement.addEventListener('mousemove', handleMouseMove)
+
+            // Render loop with slow auto-rotation
             const animate = () => {
               requestAnimationFrame(animate)
-              mesh.rotation.x += 0.005
-              mesh.rotation.y += 0.01
+              
+              // Auto-rotate when not dragging
+              if (!mouseRef.current.isDragging) {
+                mesh.rotation.x += autoRotateX
+                mesh.rotation.y += autoRotateY
+              }
+              
               renderer.render(scene, camera)
             }
             animate()
@@ -94,8 +133,12 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
 
             window.addEventListener('resize', handleResize)
 
+            // Cleanup
             return () => {
               window.removeEventListener('resize', handleResize)
+              renderer.domElement.removeEventListener('mousedown', handleMouseDown)
+              renderer.domElement.removeEventListener('mouseup', handleMouseUp)
+              renderer.domElement.removeEventListener('mousemove', handleMouseMove)
             }
           },
           undefined,
