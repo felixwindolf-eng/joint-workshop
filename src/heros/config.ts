@@ -75,6 +75,9 @@ export const hero: Field = {
     {
       name: 'richText',
       type: 'richText',
+      admin: {
+        condition: (_, { type } = {}) => type && type !== 'none' && type !== 'models3d',
+      },
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
           return [
@@ -90,6 +93,9 @@ export const hero: Field = {
     linkGroup({
       overrides: {
         maxRows: 2,
+        admin: {
+          condition: (_, { type } = {}) => type && type !== 'none' && type !== 'models3d',
+        },
       },
     }),
     {
