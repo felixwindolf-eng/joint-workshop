@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, BeforeChangeHook } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
@@ -7,6 +7,21 @@ import { slugField } from 'payload'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
+
+// Clean up hero data to remove undefined values
+const cleanupHeroData: BeforeChangeHook<'pages'> = async ({ data }) => {
+  if (data.hero && typeof data.hero === 'object') {
+    const hero = data.hero as Record<string, any>
+    
+    // Remove undefined values
+    Object.keys(hero).forEach(key => {
+      if (hero[key] === undefined || hero[key] === null) {
+        delete hero[key]
+      }
+    })
+  }
+  return data
+}
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -67,7 +82,7 @@ export const Pages: CollectionConfig<'pages'> = {
   ],
   hooks: {
     afterChange: [revalidatePage],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [cleanupHeroData, populatePublishedAt],
     afterDelete: [revalidateDelete],
   },
   versions: {
