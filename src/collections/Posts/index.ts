@@ -41,14 +41,9 @@ export const Posts: CollectionConfig<'posts'> = {
   defaultPopulate: {
     title: true,
     slug: true,
-    categories: true,
-    meta: {
-      image: true,
-      description: true,
-    },
   },
   admin: {
-    defaultColumns: ['title', 'order', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'order', 'updatedAt'],
     pagination: {
       defaultLimit: 100,
       limits: [25, 50, 100],
