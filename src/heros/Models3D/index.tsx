@@ -5,19 +5,22 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 type Models3DHeroProps = Page['hero'] & {
-  model3dId?: string
+  model3dId?: string | { id: string }
 }
 
 export const Models3DHero: React.FC<Models3DHeroProps> = async ({ model3dId }) => {
   let modelFile = null
 
-  if (model3dId) {
+  // Extract ID from string or object
+  const modelId = typeof model3dId === 'object' ? model3dId?.id : model3dId
+
+  if (modelId) {
     const payload = await getPayload({ config: configPromise })
     try {
       const model = await payload.findByID({
         collection: '3d-models',
-        id: model3dId as string,
-        depth: 1,
+        id: modelId,
+        depth: 0,
       })
 
       if (model && model.file && typeof model.file === 'object') {
@@ -56,7 +59,7 @@ export const Models3DHero: React.FC<Models3DHeroProps> = async ({ model3dId }) =
         background: '#ffffff',
       }}
     >
-      <Model3DViewer fileUrl={modelFile.url} format={modelFile.format} />
+      <Model3DViewer fileUrl={modelFile.url || ''} format={modelFile.format} />
     </div>
   )
 }
