@@ -3,6 +3,7 @@ import type { Page } from '@/payload-types'
 import { Model3DViewer } from '@/components/Model3DViewer'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { getServerSideURL } from '@/utilities/getURL'
 
 type Models3DHeroProps = Page['hero'] & {
   model3dId?: string | { id: string }
@@ -45,7 +46,13 @@ export const Models3DHero: React.FC<Models3DHeroProps> = async ({ model3dId }) =
       )
     }
 
-    const fileUrl = typeof model.file === 'object' ? (model.file.url || '') : (model.file || '')
+    let fileUrl = typeof model.file === 'object' ? (model.file.url || '') : (model.file || '')
+    
+    // Make absolute URL if needed
+    if (fileUrl && !fileUrl.startsWith('http')) {
+      const serverUrl = getServerSideURL()
+      fileUrl = `${serverUrl}${fileUrl}`
+    }
 
     return <Model3DViewer fileUrl={fileUrl} fileName={model.name} />
   } catch (error) {
