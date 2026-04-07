@@ -120,14 +120,14 @@ export const TwoColumnsHero: React.FC<TwoColumnsHeroProps> = ({
       console.log('Fetching posts - leftIds:', leftIds, 'rightIds:', rightIds)
       
       if (leftIds.length > 0) {
-        const res = await fetch(`/api/posts?where[id][in]=${leftIds.join(',')}&depth=2`)
+        const res = await fetch(`/api/posts?where[id][in]=${leftIds.join(',')}&depth=2&sort=order`)
         const data = await res.json()
         console.log('Left posts data:', data)
         setLeftPostsData(data.docs || [])
       }
       
       if (rightIds.length > 0) {
-        const res = await fetch(`/api/posts?where[id][in]=${rightIds.join(',')}&depth=2`)
+        const res = await fetch(`/api/posts?where[id][in]=${rightIds.join(',')}&depth=2&sort=order`)
         const data = await res.json()
         console.log('Right posts data:', data)
         setRightPostsData(data.docs || [])

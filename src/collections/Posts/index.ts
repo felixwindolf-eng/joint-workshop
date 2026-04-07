@@ -48,7 +48,8 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'order', 'slug', 'updatedAt'],
+    defaultSort: 'order',
     pagination: {
       defaultLimit: 100,
       limits: [25, 50, 100],
@@ -74,6 +75,16 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'order',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        step: 1,
+      },
+      defaultValue: 0,
+      index: true,
     },
     {
       type: 'tabs',
