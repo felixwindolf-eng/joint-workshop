@@ -79,7 +79,8 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
 
             // Auto-rotation state
             let autoRotateX = 0
-            let autoRotateY = -0.003
+            let autoRotateY = 0
+            let autoRotateZ = -0.003
 
             // Mouse move handler
             const handleMouseDown = (e: MouseEvent) => {
@@ -118,6 +119,7 @@ export const Model3DViewer: React.FC<Model3DViewerProps> = ({ fileUrl, fileName 
               if (!mouseRef.current.isDragging) {
                 mesh.rotation.x += autoRotateX
                 mesh.rotation.y += autoRotateY
+                mesh.rotation.z += autoRotateZ
               }
               
               renderer.render(scene, camera)
