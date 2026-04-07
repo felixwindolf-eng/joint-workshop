@@ -51,7 +51,10 @@ export const Models3DHero: React.FC<Models3DHeroProps> = async ({ model3dId }) =
     // Make absolute URL if needed
     if (fileUrl && !fileUrl.startsWith('http')) {
       const serverUrl = getServerSideURL()
-      fileUrl = `${serverUrl}${fileUrl}`
+      // Ensure proper URL formatting
+      const baseUrl = serverUrl.endsWith('/') ? serverUrl.slice(0, -1) : serverUrl
+      const path = fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`
+      fileUrl = `${baseUrl}${path}`
     }
 
     return <Model3DViewer fileUrl={fileUrl} fileName={model.name} />
